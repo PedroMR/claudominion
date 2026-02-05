@@ -43,6 +43,7 @@ export interface Player {
 export interface SpyPendingChoice {
   targetPlayerId: string;
   revealedCard: Card;
+  remainingPlayerIds: string[];  // Players still to be revealed
 }
 
 export interface GameState {

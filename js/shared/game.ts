@@ -166,9 +166,16 @@ export function playCard(state: GameState, playerIndex: number, cardIndex: numbe
   newState.log.push(`${player.name} played ${card.name}`);
 
   if (def.effect.special === 'spy') {
+    // Build list of all players in turn order starting from current player
+    const allPlayerIds: string[] = [];
     for (let i = 0; i < newState.players.length; i++) {
-      const targetIndex = (playerIndex + i) % newState.players.length;
-      const target = newState.players[targetIndex];
+      const idx = (playerIndex + i) % newState.players.length;
+      allPlayerIds.push(newState.players[idx].id);
+    }
+
+    // Find first player with cards to reveal
+    for (let i = 0; i < allPlayerIds.length; i++) {
+      const target = newState.players.find((p) => p.id === allPlayerIds[i])!;
 
       if (target.deck.length === 0 && target.discard.length > 0) {
         target.deck = shuffle(target.discard);
@@ -180,6 +187,7 @@ export function playCard(state: GameState, playerIndex: number, cardIndex: numbe
         newState.spyPending = {
           targetPlayerId: target.id,
           revealedCard,
+          remainingPlayerIds: allPlayerIds.slice(i + 1),
         };
         newState.log.push(`${target.name} reveals ${revealedCard.name}`);
         break;
@@ -196,6 +204,7 @@ export function handleSpyChoice(state: GameState, discard: boolean): GameState {
   const newState = JSON.parse(JSON.stringify(state)) as GameState;
   const target = newState.players.find((p) => p.id === newState.spyPending!.targetPlayerId)!;
   const currentPlayer = newState.players[newState.currentPlayer];
+  const remainingPlayerIds = [...newState.spyPending!.remainingPlayerIds];
 
   if (discard) {
     const card = target.deck.pop()!;
@@ -205,11 +214,11 @@ export function handleSpyChoice(state: GameState, discard: boolean): GameState {
     newState.log.push(`${currentPlayer.name} chose to keep ${target.name}'s card on top`);
   }
 
-  const currentTargetIndex = newState.players.findIndex((p) => p.id === state.spyPending!.targetPlayerId);
   delete newState.spyPending;
 
-  for (let i = currentTargetIndex + 1; i < newState.players.length; i++) {
-    const nextTarget = newState.players[i];
+  // Continue to next player in the remaining list
+  for (let i = 0; i < remainingPlayerIds.length; i++) {
+    const nextTarget = newState.players.find((p) => p.id === remainingPlayerIds[i])!;
 
     if (nextTarget.deck.length === 0 && nextTarget.discard.length > 0) {
       nextTarget.deck = shuffle(nextTarget.discard);
@@ -221,6 +230,7 @@ export function handleSpyChoice(state: GameState, discard: boolean): GameState {
       newState.spyPending = {
         targetPlayerId: nextTarget.id,
         revealedCard,
+        remainingPlayerIds: remainingPlayerIds.slice(i + 1),
       };
       newState.log.push(`${nextTarget.name} reveals ${revealedCard.name}`);
       break;
