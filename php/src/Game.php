@@ -12,6 +12,7 @@ class Game
     public array $players = [];
     public array $supply = [];
     public array $trash = [];
+    public array $scores = [];
     public array $turnState;
     public ?array $spyPending = null;
     public ?string $winner = null;
@@ -26,6 +27,7 @@ class Game
         foreach ($playerData as $p) {
             $this->players[] = $this->createPlayer($p['id'], $p['name']);
         }
+        $this->scores = $this->calculateScores();
 
         $this->log[] = "Game started with " . count($playerData) . " players";
         $this->maybeSkipActionPhase();
@@ -72,6 +74,7 @@ class Game
             'discard' => [],
             'inPlay' => [],
             'connected' => true,
+            'score' => 0,
         ];
     }
 
@@ -85,9 +88,9 @@ class Game
             'Estate' => $victoryCards,
             'Duchy' => $victoryCards,
             'Province' => $victoryCards,
-            'Village' => 10,
-            'Smithy' => 10,
-            'Market' => 10,
+            'Village' => 1,
+            'Smithy' => 0,
+            'Market' => 0,
             'Spy' => 10,
         ];
     }
@@ -354,9 +357,11 @@ class Game
 
         $this->drawCards($playerIndex, 5);
 
+        $this->scores = $this->calculateScores();
+
         if ($this->isGameOver()) {
             $this->phase = 'ended';
-            $scores = $this->calculateScores();
+            $scores = $this->scores;
             $maxScore = max(array_column($scores, 'score'));
             $winners = array_filter($scores, fn($s) => $s['score'] === $maxScore);
             $this->winner = implode(', ', array_column($winners, 'name'));
@@ -364,6 +369,7 @@ class Game
             foreach ($scores as $s) {
                 $this->log[] = "{$s['name']}: {$s['score']} VP";
             }
+            $this->scores = $scores;
             return;
         }
 
@@ -394,6 +400,7 @@ class Game
                     $score += $def['effect']['vp'];
                 }
             }
+            $player['score'] = $score;
             $scores[] = ['name' => $player['name'], 'score' => $score];
         }
         return $scores;
@@ -420,6 +427,7 @@ class Game
     public function toClientState(string $forPlayerId): array
     {
         $players = [];
+        $this->scores = $this->calculateScores();
         foreach ($this->players as $player) {
             $clientPlayer = [
                 'id' => $player['id'],
@@ -429,6 +437,7 @@ class Game
                 'discardCount' => count($player['discard']),
                 'inPlay' => $player['inPlay'],
                 'connected' => $player['connected'],
+                'score' => $player['score'], 
             ];
             if ($player['id'] === $forPlayerId) {
                 $clientPlayer['hand'] = $player['hand'];
@@ -441,11 +450,13 @@ class Game
             'phase' => $this->phase,
             'currentPlayer' => $this->currentPlayer,
             'players' => $players,
+            'scores' => $this->scores,
             'supply' => $this->supply,
             'trashCount' => count($this->trash),
             'turnState' => $this->turnState,
             'spyPending' => $this->spyPending,
             'winner' => $this->winner,
+            'scores' => $this->scores,
             'log' => array_slice($this->log, -20),
         ];
     }
@@ -457,6 +468,7 @@ class Game
             'phase' => $this->phase,
             'currentPlayer' => $this->currentPlayer,
             'players' => $this->players,
+            'scores' => $this->scores,
             'supply' => $this->supply,
             'trash' => $this->trash,
             'turnState' => $this->turnState,

@@ -229,6 +229,7 @@
         <div class="modal-content game-over-content">
             <h2>Game Over!</h2>
             <div class="winner" id="winnerText"></div>
+            <div class="scores" id="scoresText"></div>
         </div>
     </div>
 
@@ -372,6 +373,7 @@
 
             state.version = res.version;
             state.gameState = res.gameState;
+            console.log(state.gameState);
             showGame();
         }
 
@@ -384,6 +386,8 @@
 
         function renderGame() {
             const gs = state.gameState;
+            console.log("Game State: ", state.gameState);
+
             if (!gs) return;
 
             const currentPlayer = gs.players[gs.currentPlayer];
@@ -453,7 +457,16 @@
             // Game over
             if (gs.phase === 'ended') {
                 document.getElementById('winnerText').textContent = 'Winner: ' + gs.winner;
+                let scoreText = '<br/>';
+                for(s of gs.scores) {
+                    scoreText += s.name+': '+s.score+' VP<br/>';
+                }
+                console.log(scoreText);
+                document.getElementById('scoresText').innerHTML = scoreText;
                 document.getElementById('gameOverModal').classList.remove('hidden');
+
+                console.log("Score: ", gs.scores);
+                
             } else {
                 document.getElementById('gameOverModal').classList.add('hidden');
             }

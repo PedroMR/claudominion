@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(timeout 8 npm run dev:server:*)",
+      "Bash(timeout 5 npm run dev:server:*)",
+      "Bash(timeout 8 npm run dev:client:*)",
+      "Bash(npm run dev:*)"
+    ]
+  }
+}
