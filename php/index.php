@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spies! - Deck Building Game</title>
+    <title>ClauDominion - Deck Building Game</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -134,7 +134,7 @@
 <body>
     <!-- Lobby Screen -->
     <div id="lobby" class="lobby">
-        <h1>Spies!</h1>
+        <h1>ClauDominion</h1>
         <div class="lobby-actions">
             <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
             <br/><br/>  

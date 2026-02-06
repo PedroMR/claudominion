@@ -456,7 +456,6 @@ class Game
             'turnState' => $this->turnState,
             'spyPending' => $this->spyPending,
             'winner' => $this->winner,
-            'scores' => $this->scores,
             'log' => array_slice($this->log, -20),
         ];
     }
