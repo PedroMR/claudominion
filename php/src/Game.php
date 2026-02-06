@@ -88,9 +88,9 @@ class Game
             'Estate' => $victoryCards,
             'Duchy' => $victoryCards,
             'Province' => $victoryCards,
-            'Village' => 1,
-            'Smithy' => 0,
-            'Market' => 0,
+            'Village' => 10,
+            'Smithy' => 10,
+            'Market' => 10,
             'Spy' => 10,
         ];
     }

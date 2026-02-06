@@ -121,6 +121,7 @@
         .modal-content button { padding: 0.75rem 1.5rem; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; }
         .modal-content .discard-btn { background: #e94560; color: white; }
         .modal-content .keep-btn { background: #4caf50; color: white; }
+        .modal-content .newGame-btn { background: #e94560; color: white; }
         .game-over-content h2 { font-size: 2rem; margin-bottom: 1rem; color: #e94560; }
         .game-over-content .winner { font-size: 1.5rem; }
 
@@ -136,6 +137,7 @@
         <h1>Spies!</h1>
         <div class="lobby-actions">
             <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
+            <br/><br/>  
             <button onclick="createRoom()">Create New Game</button>
             <div class="divider">- or -</div>
             <div class="join-section">
@@ -230,6 +232,9 @@
             <h2>Game Over!</h2>
             <div class="winner" id="winnerText"></div>
             <div class="scores" id="scoresText"></div>
+            <div class="buttons">
+                <button class="newGame-btn" onclick="newGame()">New Game</button>
+            </div>
         </div>
     </div>
 
@@ -409,7 +414,7 @@
             document.getElementById('gamePlayers').innerHTML = gs.players.map((p, i) => `
                 <div class="player-info ${i === gs.currentPlayer ? 'current' : ''}">
                     <div class="player-name">${p.name}${p.id === state.playerId ? ' (You)' : ''}</div>
-                    <div class="player-stats">Hand: ${p.handCount} | Deck: ${p.deckCount} | Discard: ${p.discardCount}</div>
+                    <div class="player-stats">Score: ${p.score} | Hand: ${p.handCount} | Deck: ${p.deckCount} | Discard: ${p.discardCount}</div>
                 </div>
             `).join('');
 
@@ -461,6 +466,7 @@
                 for(s of gs.scores) {
                     scoreText += s.name+': '+s.score+' VP<br/>';
                 }
+                scoreText += '<br/>';
                 console.log(scoreText);
                 document.getElementById('scoresText').innerHTML = scoreText;
                 document.getElementById('gameOverModal').classList.remove('hidden');
@@ -553,6 +559,17 @@
             state.version = res.version;
             state.gameState = res.gameState;
             renderGame();
+        }
+
+        async function newGame() {
+            document.getElementById('lobby').classList.remove('hidden');
+            document.getElementById('waitingRoom').classList.add('hidden');
+            document.getElementById('gameBoard').classList.add('hidden');
+            document.getElementById('gameOverModal').classList.add('hidden');
+
+            sessionStorage.removeItem('spies_roomCode');
+            state.roomCode = null;
+            document.getElementById('roomCode').value = '';
         }
 
         function startPolling() {
